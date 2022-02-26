@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+c7n = "*"
+
+[dev-packages]
+pytest = "*"
+pytest-cov = "*"
+black = "*"
+isort = "*"
+flake8 = "*"
+flake8-docstrings = "*"
+coverage = "*"
+moto = "*"
+yamllint = "*"
+pre-commit = "*"
+tox = "*"
