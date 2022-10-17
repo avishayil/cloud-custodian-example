@@ -1,0 +1,30 @@
+---
+
+policies:
+
+  # =============
+  # S3 Policies
+  # =============
+
+  - name: s3-public-block-enable-all
+    resource: s3
+    description: |
+      Block bucket public access.
+    filters:
+      - and:
+          - or:
+              - type: check-public-block
+                BlockPublicAcls: false
+              - type: check-public-block
+                BlockPublicPolicy: false
+              - type: check-public-block
+                IgnorePublicAcls: false
+              - type: check-public-block
+                RestrictPublicBuckets: false
+          - type: value
+            key: "tag:AllowPublic"
+            value: "yes"
+            value_type: normalize
+            op: not-equal
+    actions:
+      - type: set-public-block

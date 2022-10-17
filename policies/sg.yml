@@ -1,0 +1,90 @@
+---
+
+policies:
+
+  # ==========================
+  # Security Group Policies
+  # ==========================
+
+  - name: sg-with-ingress-or-egress-with-default
+    resource: security-group
+    description: |
+      Remove all rules from default security groups on all VPCs
+    filters:
+      - type: value
+        key: GroupName
+        op: eq
+        value: default
+    actions:
+      - type: remove-permissions
+        egress: all
+        ingress: all
+
+  - name: sg-that-allows-rdp-open-ingress
+    resource: security-group
+    description: |
+      Remediate any security group rule on RDP (3389) port that allows 0.0.0.0/0 ingress
+    filters:
+      - and:
+          - type: ingress
+            Ports: [3389]
+            Cidr:
+              value: "0.0.0.0/0"
+          - or:
+              - "tag:AllowRDPFromEverywhere": absent
+              - and:
+                  - "tag:AllowRDPFromEverywhere": present
+                  - type: value
+                    key: "tag:AllowRDPFromEverywhere"
+                    value: "yes"
+                    value_type: normalize
+                    op: ne
+    actions:
+      - type: remove-permissions
+        ingress: matched
+
+  - name: sg-that-allows-ssh-open-ingress
+    resource: security-group
+    description: |
+      Remediate any security group rule on SSH (22) port that allows 0.0.0.0/0 ingress
+    filters:
+      - and:
+          - type: ingress
+            Ports: [22]
+            Cidr:
+              value: "0.0.0.0/0"
+          - or:
+              - "tag:AllowSSHFromEverywhere": absent
+              - and:
+                  - "tag:AllowSSHFromEverywhere": present
+                  - type: value
+                    key: "tag:AllowSSHFromEverywhere"
+                    value: "yes"
+                    value_type: normalize
+                    op: ne
+    actions:
+      - type: remove-permissions
+        ingress: matched
+
+  - name: sg-that-allows-everywhere-open-ingress
+    resource: security-group
+    description: |
+      Remediate any security group rule on a generic port that allows 0.0.0.0/0 ingress
+    filters:
+      - and:
+          - type: ingress
+            OnlyPorts: [22, 3389]
+            Cidr:
+              value: "0.0.0.0/0"
+          - or:
+              - "tag:AllowFromEverywhere": absent
+              - and:
+                  - "tag:AllowFromEverywhere": present
+                  - type: value
+                    key: "tag:AllowFromEverywhere"
+                    value: "yes"
+                    value_type: normalize
+                    op: ne
+    actions:
+      - type: remove-permissions
+        ingress: matched
