@@ -21,13 +21,8 @@ repos:
           'flake8-implicit-str-concat',
         ]
 
-  - repo: https://github.com/asottile/seed-isort-config
-    rev: v2.2.0
-    hooks:
-      - id: seed-isort-config
-
-  - repo: https://github.com/timothycrosley/isort
-    rev: "5.10.1"
+  - repo: https://github.com/PyCQA/isort
+    rev: "5.13.2"
     hooks:
       - id: isort
         pass_filenames: true
