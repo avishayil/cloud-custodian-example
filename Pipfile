@@ -9,7 +9,7 @@ c7n = "==0.9.49"
 [dev-packages]
 pytest = "*"
 pytest-cov = "*"
-black = "==22.3.0"
+black = "==26.5.1"
 isort = "~=5.13"
 flake8 = "==4.0.1"
 flake8-docstrings = "*"
