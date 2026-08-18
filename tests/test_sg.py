@@ -1,20 +1,17 @@
 """Test Cloud Custodian SG polices."""
 
-from unittest.mock import patch
 
 import boto3
 from helpers import listdiff
-from moto import mock_ec2
+from moto import mock_aws
 from test_runner import CustodianPolicyTest
 
 
 class EC2PolicyTest(CustodianPolicyTest):
     """Cloud Custodian EC2 policies test runner base class."""
 
-    @patch("c7n.policy.Policy._write_file")
-    @patch("c7n.utils.dumps")
-    @mock_ec2
-    def test_sg_with_open_ssh_ingress(self, dumps, wf):
+    @mock_aws
+    def test_sg_with_open_ssh_ingress(self):
         """Test security groups SSH ingress rules open."""
         client = boto3.client("ec2")
         ec2 = boto3.resource("ec2")
@@ -44,7 +41,6 @@ class EC2PolicyTest(CustodianPolicyTest):
         resources, metrics = self.run_policy(
             policy_file_path="policies/sg.yml",
             policy_names=["sg-that-allows-ssh-open-ingress"],
-            dumps=dumps,
         )
         sg_after_policy_run = client.describe_security_groups(GroupIds=[sg.id])[
             "SecurityGroups"
@@ -80,10 +76,8 @@ class EC2PolicyTest(CustodianPolicyTest):
             expected_removed_rules,
         )  # Verify that the specific rule was removed as expected
 
-    @patch("c7n.policy.Policy._write_file")
-    @patch("c7n.utils.dumps")
-    @mock_ec2
-    def test_sg_with_open_ssh_ingress_with_tag(self, dumps, wf):
+    @mock_aws
+    def test_sg_with_open_ssh_ingress_with_tag(self):
         """Test security groups SSH ingress rules open, excluded by tag."""
         client = boto3.client("ec2")
         ec2 = boto3.resource("ec2")
@@ -114,7 +108,6 @@ class EC2PolicyTest(CustodianPolicyTest):
         resources, metrics = self.run_policy(
             policy_file_path="policies/sg.yml",
             policy_names=["sg-that-allows-ssh-open-ingress"],
-            dumps=dumps,
         )
         sg_after_policy_run = client.describe_security_groups(GroupIds=[sg.id])[
             "SecurityGroups"
@@ -127,10 +120,8 @@ class EC2PolicyTest(CustodianPolicyTest):
             sg_after_policy_run["IpPermissions"], sg_before_policy_run["IpPermissions"]
         )  # Verify that the security group ingress rules are empty after policy run
 
-    @patch("c7n.policy.Policy._write_file")
-    @patch("c7n.utils.dumps")
-    @mock_ec2
-    def test_sg_with_open_rdp_ingress(self, dumps, wf):
+    @mock_aws
+    def test_sg_with_open_rdp_ingress(self):
         """Test security groups RDP ingress rules open."""
         client = boto3.client("ec2")
         ec2 = boto3.resource("ec2")
@@ -160,7 +151,6 @@ class EC2PolicyTest(CustodianPolicyTest):
         resources, metrics = self.run_policy(
             policy_file_path="policies/sg.yml",
             policy_names=["sg-that-allows-rdp-open-ingress"],
-            dumps=dumps,
         )
         sg_after_policy_run = client.describe_security_groups(GroupIds=[sg.id])[
             "SecurityGroups"
@@ -196,10 +186,8 @@ class EC2PolicyTest(CustodianPolicyTest):
             expected_removed_rules,
         )  # Verify that the specific rule was removed as expected
 
-    @patch("c7n.policy.Policy._write_file")
-    @patch("c7n.utils.dumps")
-    @mock_ec2
-    def test_sg_with_open_rdp_ingress_with_tag(self, dumps, wf):
+    @mock_aws
+    def test_sg_with_open_rdp_ingress_with_tag(self):
         """Test security groups RDP ingress rules open, excluded by tag."""
         client = boto3.client("ec2")
         ec2 = boto3.resource("ec2")
@@ -230,7 +218,6 @@ class EC2PolicyTest(CustodianPolicyTest):
         resources, metrics = self.run_policy(
             policy_file_path="policies/sg.yml",
             policy_names=["sg-that-allows-rdp-open-ingress"],
-            dumps=dumps,
         )
         sg_after_policy_run = client.describe_security_groups(GroupIds=[sg.id])[
             "SecurityGroups"
@@ -243,10 +230,8 @@ class EC2PolicyTest(CustodianPolicyTest):
             sg_after_policy_run["IpPermissions"], sg_before_policy_run["IpPermissions"]
         )  # Verify that the security group ingress rules are empty after policy run
 
-    @patch("c7n.policy.Policy._write_file")
-    @patch("c7n.utils.dumps")
-    @mock_ec2
-    def test_sg_with_open_generic_ingress(self, dumps, wf):
+    @mock_aws
+    def test_sg_with_open_generic_ingress(self):
         """Test security groups generic ingress rules open."""
         client = boto3.client("ec2")
         ec2 = boto3.resource("ec2")
@@ -284,7 +269,6 @@ class EC2PolicyTest(CustodianPolicyTest):
         resources, metrics = self.run_policy(
             policy_file_path="policies/sg.yml",
             policy_names=["sg-that-allows-everywhere-open-ingress"],
-            dumps=dumps,
         )
         sg_after_policy_run = client.describe_security_groups(GroupIds=[sg.id])[
             "SecurityGroups"
@@ -326,10 +310,8 @@ class EC2PolicyTest(CustodianPolicyTest):
             expected_removed_rules,
         )  # Verify that the specific rule was removed as expected
 
-    @patch("c7n.policy.Policy._write_file")
-    @patch("c7n.utils.dumps")
-    @mock_ec2
-    def test_sg_with_open_generic_ingress_with_tag(self, dumps, wf):
+    @mock_aws
+    def test_sg_with_open_generic_ingress_with_tag(self):
         """Test security groups generic ingress rules open, excluded by tag."""
         client = boto3.client("ec2")
         ec2 = boto3.resource("ec2")
@@ -368,7 +350,6 @@ class EC2PolicyTest(CustodianPolicyTest):
         resources, metrics = self.run_policy(
             policy_file_path="policies/sg.yml",
             policy_names=["sg-that-allows-everywhere-open-ingress"],
-            dumps=dumps,
         )
         sg_after_policy_run = client.describe_security_groups(GroupIds=[sg.id])[
             "SecurityGroups"
@@ -386,10 +367,8 @@ class EC2PolicyTest(CustodianPolicyTest):
             expected_removed_rules,
         )  # Verify that the specific rule was removed as expected
 
-    @patch("c7n.policy.Policy._write_file")
-    @patch("c7n.utils.dumps")
-    @mock_ec2
-    def test_default_sg_with_rules(self, dumps, wf):
+    @mock_aws
+    def test_default_sg_with_rules(self):
         """Test default security groups."""
         client = boto3.client("ec2")
         ec2 = boto3.resource("ec2")
@@ -429,7 +408,6 @@ class EC2PolicyTest(CustodianPolicyTest):
         resources, metrics = self.run_policy(
             policy_file_path="policies/sg.yml",
             policy_names=["sg-with-ingress-or-egress-with-default"],
-            dumps=dumps,
         )
         sg_after_policy_run = client.describe_security_groups(GroupIds=[sg.id])[
             "SecurityGroups"
@@ -447,3 +425,49 @@ class EC2PolicyTest(CustodianPolicyTest):
         self.assertEqual(
             sg_after_policy_run["IpPermissionsEgress"], []
         )  # Verify that the security group egress rules are empty after policy run
+
+    @mock_aws
+    def test_non_default_sg_not_matched(self):
+        """Test that non-default security groups are ignored by the default-sg policy."""
+        client = boto3.client("ec2")
+        ec2 = boto3.resource("ec2")
+
+        # Delete existing default security group so only our named SG exists
+        client.delete_security_group(GroupName="default")
+
+        # Create a non-default security group with rules
+        sg = ec2.create_security_group(
+            GroupName="app-sg",
+            Description="Application Security Group",
+            VpcId="vpc-41744d3f",
+        )
+        client.authorize_security_group_ingress(
+            GroupId=sg.id,
+            IpPermissions=[
+                {
+                    "FromPort": 443,
+                    "ToPort": 443,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [{"CidrIp": "10.0.0.0/8", "Description": "internal"}],
+                }
+            ],
+        )
+
+        sg_before_policy_run = client.describe_security_groups(GroupIds=[sg.id])[
+            "SecurityGroups"
+        ][0]
+        resources, metrics = self.run_policy(
+            policy_file_path="policies/sg.yml",
+            policy_names=["sg-with-ingress-or-egress-with-default"],
+        )
+        sg_after_policy_run = client.describe_security_groups(GroupIds=[sg.id])[
+            "SecurityGroups"
+        ][0]
+
+        self.assertEqual(
+            len(resources), 0
+        )  # Verify that no resources violated the policy
+        self.assertEqual(
+            sg_after_policy_run["IpPermissions"],
+            sg_before_policy_run["IpPermissions"],
+        )  # Verify that the non-default SG rules were left untouched

@@ -1,26 +1,14 @@
 """Test runner for cloud custodian policies."""
 
 import pathlib
+import tempfile
 import unittest
-from unittest.mock import PropertyMock, patch
 
 import yaml
 
 
 class CustodianPolicyTest(unittest.TestCase):
     """Cloud Custodian test runner base class."""
-
-    @staticmethod
-    def get_all_resources(call_args):
-        """Get outputs from Cloud Custodian run."""
-        resources = []
-        metrics = []
-        for i, resource in enumerate(call_args):
-            if i % 2 == 0:
-                resources.extend(resource[0][0])
-            else:
-                metrics.extend([resource[0][0]])
-        return (resources, metrics)
 
     def extract_test_policy(self, policy_file_path: str, policy_names: list):
         """Alter policies YAML, strip mode and notify sections."""
@@ -33,8 +21,8 @@ class CustodianPolicyTest(unittest.TestCase):
             if policy["name"] in policy_names:
                 if "mode" in policy:
                     policy.pop("mode")
-                for action in policy["actions"]:
-                    if action["type"] == "notify":
+                for action in list(policy.get("actions", [])):
+                    if isinstance(action, dict) and action.get("type") == "notify":
                         policy["actions"].remove(action)
                 new_policy_doc.append(policy)
 
@@ -47,20 +35,33 @@ class CustodianPolicyTest(unittest.TestCase):
 
         return test_policy_file_paths
 
-    def run_policy(self, policy_file_path: str, policy_names: list, dumps):
-        """Run Cloud Custodian policy on moto test backend."""
-        from c7n.commands import run
+    def run_policy(self, policy_file_path: str, policy_names: list):
+        """Run Cloud Custodian policies against the moto test backend.
+
+        Loads the requested policies, executes each one in pull mode, and
+        returns the resources that matched the policy filters together with
+        the policy names that ran.
+        """
         from c7n.config import Config
+        from c7n.policy import load as load_policies
 
         test_policy_file_paths = self.extract_test_policy(
             policy_file_path=policy_file_path, policy_names=policy_names
         )
 
-        args = {"output_dir": "output", "configs": test_policy_file_paths, "vars": None}
-        config = Config.empty(**args)
+        config = Config.empty(
+            output_dir=tempfile.mkdtemp(prefix="c7n-test-output-"),
+            dryrun=False,
+            debug=False,
+        )
 
-        with patch("c7n.policy.Policy.execution_mode", new_callable=PropertyMock) as em:
-            em.return_value = "pull"
-            run(config)
+        resources = []
+        metrics = []
+        for test_policy_file_path in test_policy_file_paths:
+            collection = load_policies(config, test_policy_file_path, validate=True)
+            for policy in collection:
+                matched = policy() or []
+                resources.extend(matched)
+                metrics.append(policy.name)
 
-        return self.get_all_resources(dumps.call_args_list)
+        return (resources, metrics)

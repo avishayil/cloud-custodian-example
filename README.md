@@ -8,7 +8,7 @@ Cloud Custodian documentation: [here](https://cloudcustodian.io/docs/quickstart/
 
 ## Prerequisites
 
-- Python 3.8
+- Python 3.11 or 3.12
 - [pip](https://pip.pypa.io/en/stable/)
 - [Pipenv](https://github.com/pypa/pipenv)
 
@@ -31,3 +31,6 @@ $ tox
 
 ## Credits
 - @zscholl for providing the base code for these unit tests: https://medium.com/zendesk-engineering/validating-cloud-custodian-on-aws-with-moto-203a30ee5505
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
