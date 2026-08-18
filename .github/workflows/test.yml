@@ -30,7 +30,7 @@ jobs:
         run: |
           pipenv run tox
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report-py${{ matrix.python-version }}
           path: htmlcov/
